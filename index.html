@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>خانه‌روشن - مدیریت انرژی پاک</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        .chart-bar {
+            transition: height 0.3s ease;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(46, 184, 114, 0.15);
+        }
+        
+        .energy-gradient {
+            background: linear-gradient(135deg, #2EB872 0%, #009F9D 100%);
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid #2EB872;
+            color: #2EB872;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="w-full min-h-full" style="background: #F5F7F9; margin: 0; padding: 0;">
+  <div class="w-full min-h-full"><!-- Header -->
+   <header class="w-full" style="background: linear-gradient(135deg, #2EB872 0%, #009F9D 100%); padding: 20px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+     <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+       <h1 id="app-title" style="color: white; font-size: 24px; font-weight: 700; margin: 0;">خانه‌روشن</h1>
+       <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 5px 0 0 0;">سیستم مدیریت انرژی پاک</p>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;"><button onclick="showNotifications()" style="background: rgba(255,255,255,0.2); border: none; padding: 10px; border-radius: 8px; cursor: pointer;"> <span style="color: white; font-size: 20px;">🔔</span> </button>
+       <div id="user-profile" style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px;"><span style="color: white; font-size: 20px;">👤</span> <span id="user-name" style="color: white; font-size: 14px; font-weight: 500;">علی محمدی</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </header><!-- Navigation Tabs -->
+   <nav class="w-full" style="background: white; border-bottom: 1px solid #E8ECEE; padding: 0 20px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 5px; overflow-x: auto;"><button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn tab-active" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #2EB872; border-bottom: 3px solid #2EB872;"> 📊 <span id="dashboard-title">داشبورد انرژی</span> </button> <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 📈 <span id="analysis-title">تحلیل مصرف</span> </button> <button onclick="switchTab('calculator')" id="tab-calculator" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> ⚡ <span id="calculator-title">محاسبه‌گر خورشیدی</span> </button> <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 📉 شبیه‌ساز ۵ ساله </button> <button onclick="switchTab('marketplace')" id="tab-marketplace" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 🛒 <span id="marketplace-title">بازارچه انر��ی</span> </button> <button onclick="switchTab('club')" id="tab-club" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 🏆 باشگاه انرژی </button> <button onclick="switchTab('map')" id="tab-map" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 🗺️ نقشه ایران </button> <button onclick="switchTab('community')" id="tab-community" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> 👥 یاران خورشید </button> <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn" style="padding: 15px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 500; white-space: nowrap; color: #666; border-bottom: 3px solid transparent;"> ⚙️ پروفایل </button>
+    </div>
+   </nav><!-- Main Content -->
+   <main style="padding: 12px;">
+    <div style="max-width: 1200px; margin: 0 auto;"><!-- Dashboard Tab -->
+     <div id="content-dashboard" class="tab-content fade-in">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px;"><!-- Energy Production Card -->
+       <div class="card-hover" style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+         <div style="background: rgba(46, 184, 114, 0.1); padding: 10px; border-radius: 10px;"><span style="font-size: 24px;">☀️</span>
+         </div>
+         <div>
+          <h3 style="margin: 0; color: #666; font-size: 12px; font-weight: 500;">تولید امروز</h3>
+          <p style="margin: 4px 0 0 0; color: #2EB872; font-size: 22px; font-weight: 700;">42.5 <span style="font-size: 13px;">کیلووات</span></p>
+         </div>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 8px; padding: 10px;">
+         <p style="margin: 0; color: #666; font-size: 12px;">📈 +18% نسبت به دیروز</p>
+        </div>
+       </div><!-- Energy Consumption Card -->
+       <div class="card-hover" style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+         <div style="background: rgba(0, 159, 157, 0.1); padding: 10px; border-radius: 10px;"><span style="font-size: 24px;">⚡</span>
+         </div>
+         <div>
+          <h3 style="margin: 0; color: #666; font-size: 12px; font-weight: 500;">مصرف امروز</h3>
+          <p style="margin: 4px 0 0 0; color: #009F9D; font-size: 22px; font-weight: 700;">38.2 <span style="font-size: 13px;">کیلووات</span></p>
+         </div>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 8px; padding: 10px;">
+         <p style="margin: 0; color: #666; font-size: 12px;">📉 -12% نسبت به دیروز</p>
+        </div>
+       </div><!-- Savings Card -->
+       <div class="card-hover" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+         <div style="background: rgba(46, 184, 114, 0.1); padding: 12px; border-radius: 12px;"><span style="font-size: 28px;">💰</span>
+         </div>
+         <div>
+          <h3 style="margin: 0; color: #666; font-size: 14px; font-weight: 500;">صرفه‌جویی ماهانه</h3>
+          <p style="margin: 4px 0 0 0; color: #2EB872; font-size: 28px; font-weight: 700;">1,250,000 <span style="font-size: 16px;">تومان</span></p>
+         </div>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 8px; padding: 12px;">
+         <p style="margin: 0; color: #666; font-size: 13px;">🌱 کا��ش 180 کیلو CO₂</p>
+        </div>
+       </div>
+      </div><!-- Chart Section -->
+      <div style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px;">
+       <h3 style="margin: 0 0 16px 0; color: #333; font-size: 16px; font-weight: 600;">نمودار تولید و مصرف هفتگی</h3>
+       <div style="display: flex; gap: 6px; height: 160px; align-items: flex-end; justify-content: space-around;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 110px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 95px;"></div>
+         </div><span style="font-size: 11px; color: #666;">شنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 125px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 102px;"></div>
+         </div><span style="font-size: 11px; color: #666;">یکشنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 120px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 106px;"></div>
+         </div><span style="font-size: 11px; color: #666;">دوشنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 132px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 110px;"></div>
+         </div><span style="font-size: 11px; color: #666;">سه‌شنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 128px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 114px;"></div>
+         </div><span style="font-size: 11px; color: #666;">چهارشنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 140px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 118px;"></div>
+         </div><span style="font-size: 11px; color: #666;">پنجشنبه</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+         <div style="display: flex; gap: 3px; width: 100%; justify-content: center;">
+          <div class="chart-bar" style="width: 45%; background: #2EB872; border-radius: 4px 4px 0 0; height: 136px;"></div>
+          <div class="chart-bar" style="width: 45%; background: #009F9D; border-radius: 4px 4px 0 0; height: 122px;"></div>
+         </div><span style="font-size: 11px; color: #666;">جمعه</span>
+        </div>
+       </div>
+       <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+         <div style="width: 16px; height: 16px; background: #2EB872; border-radius: 4px;"></div><span style="font-size: 13px; color: #666;">تولید</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+         <div style="width: 16px; height: 16px; background: #009F9D; border-radius: 4px;"></div><span style="font-size: 13px; color: #666;">مصرف</span>
+        </div>
+       </div>
+      </div>
+     </div><!-- Analysis Tab -->
+     <div id="content-analysis" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px;">
+       <h3 style="margin: 0 0 16px 0; color: #333; font-size: 16px; font-weight: 600;">تحلیل الگوی مصرف</h3>
+       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px;">
+         <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;">بیشترین مصرف</p>
+         <p style="margin: 0; color: #009F9D; font-size: 20px; font-weight: 600;">ساعت 14:00 - 18:00</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px;">
+         <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;">کمترین مصرف</p>
+         <p style="margin: 0; color: #2EB872; font-size: 20px; font-weight: 600;">ساعت 02:00 - 06:00</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px;">
+         <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;">میانگین روزانه</p>
+         <p style="margin: 0; color: #333; font-size: 20px; font-weight: 600;">38.5 کیلووات</p>
+        </div>
+       </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+       <div class="card-hover" style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h4 style="margin: 0 0 12px 0; color: #333; font-size: 15px; font-weight: 600;">دستگاه‌های پرمصرف</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F5F7F9; border-radius: 8px;"><span style="color: #666; font-size: 13px;">❄️ کولر</span> <span style="color: #009F9D; font-size: 13px; font-weight: 600;">12.5 کیلووات</span>
+         </div>
+         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F5F7F9; border-radius: 8px;"><span style="color: #666; font-size: 13px;">🔥 آبگرمکن</span> <span style="color: #009F9D; font-size: 13px; font-weight: 600;">8.3 کیلووات</span>
+         </div>
+         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F5F7F9; border-radius: 8px;"><span style="color: #666; font-size: 13px;">🧊 یخچال</span> <span style="color: #009F9D; font-size: 13px; font-weight: 600;">4.7 کیلووات</span>
+         </div>
+        </div>
+       </div>
+       <div class="card-hover" style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h4 style="margin: 0 0 12px 0; color: #333; font-size: 15px; font-weight: 600;">پیشنهادات بهینه‌سازی</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+         <div style="padding: 10px; background: rgba(46, 184, 114, 0.1); border-radius: 8px; border-right: 3px solid #2EB872;">
+          <p style="margin: 0; color: #333; font-size: 12px;">استفاده از کولر در ساعات کم‌مصرف</p>
+         </div>
+         <div style="padding: 10px; background: rgba(46, 184, 114, 0.1); border-radius: 8px; border-right: 3px solid #2EB872;">
+          <p style="margin: 0; color: #333; font-size: 12px;">تنظیم دمای آبگرمکن روی 55 درجه</p>
+         </div>
+         <div style="padding: 10px; background: rgba(46, 184, 114, 0.1); border-radius: 8px; border-right: 3px solid #2EB872;">
+          <p style="margin: 0; color: #333; font-size: 12px;">استفاده از لامپ‌های LED</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Calculator Tab -->
+     <div id="content-calculator" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+       <h3 style="margin: 0 0 16px 0; color: #333; font-size: 16px; font-weight: 600;">محاسبه ظرفیت مورد نیاز</h3>
+       <div style="display: grid; gap: 12px;">
+        <div><label for="monthly-consumption" style="display: block; margin-bottom: 6px; color: #666; font-size: 13px; font-weight: 500;">مصرف ماهانه (کیلووات ساعت)</label> <input type="number" id="monthly-consumption" value="450" onchange="calculateSolar()" style="width: 100%; padding: 10px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+        </div>
+        <div><label for="roof-area" style="display: block; margin-bottom: 6px; color: #666; font-size: 13px; font-weight: 500;">مساحت پشت‌بام (متر مربع)</label> <input type="number" id="roof-area" value="50" onchange="calculateSolar()" style="width: 100%; padding: 10px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+        </div>
+        <div><label for="city-select" style="display: block; margin-bottom: 6px; color: #666; font-size: 13px; font-weight: 500;">شهر محل سکونت</label> <select id="city-select" onchange="calculateSolar()" style="width: 100%; padding: 10px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 14px; box-sizing: border-box;"> <option value="5.5">تهران</option> <option value="6.0">یزد</option> <option value="5.8">اصفهان</option> <option value="5.2">تبریز</option> <option value="5.0">رشت</option> </select>
+        </div>
+       </div>
+       <div id="calculation-result" style="margin-top: 30px; padding: 24px; background: linear-gradient(135deg, rgba(46, 184, 114, 0.1), rgba(0, 159, 157, 0.1)); border-radius: 12px;">
+        <h4 style="margin: 0 0 20px 0; color: #333; font-size: 16px; font-weight: 600;">نتایج محاسبه</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+         <div>
+          <p style="margin: 0 0 4px 0; color: #666; font-size: 13px;">ظرفیت پیشنهادی</p>
+          <p id="result-capacity" style="margin: 0; color: #2EB872; font-size: 24px; font-weight: 700;">5.5 کیلووات</p>
+         </div>
+         <div>
+          <p style="margin: 0 0 4px 0; color: #666; font-size: 13px;">تعداد پنل</p>
+          <p id="result-panels" style="margin: 0; color: #009F9D; font-size: 24px; font-weight: 700;">11 عدد</p>
+         </div>
+         <div>
+          <p style="margin: 0 0 4px 0; color: #666; font-size: 13px;">هزینه تقریبی</p>
+          <p id="result-cost" style="margin: 0; color: #333; font-size: 24px; font-weight: 700;">165 می��یون</p>
+         </div>
+         <div>
+          <p style="margin: 0 0 4px 0; color: #666; font-size: 13px;">بازگشت سرمایه</p>
+          <p id="result-payback" style="margin: 0; color: #2EB872; font-size: 24px; font-weight: 700;">4.5 سال</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Simulator Tab -->
+     <div id="content-simulator" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+       <h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: 600;">پیش‌بینی ۵ ساله</h3>
+       <div style="display: flex; gap: 8px; height: 250px; align-items: flex-end; justify-content: space-around; margin-bottom: 20px;">
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+         <div style="width: 100%; background: #2EB872; border-radius: 8px 8px 0 0; height: 100px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 16px; font-weight: 600;">15M</span>
+         </div><span style="font-size: 13px; color: #666; font-weight: 500;">سال 1</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+         <div style="width: 100%; background: #2EB872; border-radius: 8px 8px 0 0; height: 130px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 16px; font-weight: 600;">30M</span>
+         </div><span style="font-size: 13px; color: #666; font-weight: 500;">سال 2</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+         <div style="width: 100%; background: #2EB872; border-radius: 8px 8px 0 0; height: 160px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 16px; font-weight: 600;">45M</span>
+         </div><span style="font-size: 13px; color: #666; font-weight: 500;">سال 3</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+         <div style="width: 100%; background: #2EB872; border-radius: 8px 8px 0 0; height: 190px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 16px; font-weight: 600;">60M</span>
+         </div><span style="font-size: 13px; color: #666; font-weight: 500;">سال 4</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+         <div style="width: 100%; background: #009F9D; border-radius: 8px 8px 0 0; height: 220px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 16px; font-weight: 600;">75M</span>
+         </div><span style="font-size: 13px; color: #666; font-weight: 500;">سال 5</span>
+        </div>
+       </div>
+       <div style="background: rgba(46, 184, 114, 0.1); border-radius: 12px; padding: 20px;">
+        <p style="margin: 0 0 12px 0; color: #333; font-size: 15px; font-weight: 600;">جمع صرفه‌جویی ۵ ساله: 225 میلیون تومان</p>
+        <p style="margin: 0; color: #666; font-size: 14px;">کاهش 10,800 کیلوگرم دی‌اکسید کربن 🌱</p>
+       </div>
+      </div>
+     </div><!-- Marketplace Tab -->
+     <div id="content-marketplace" class="tab-content" style="display: none;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+       <div class="card-hover" style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="width: 100%; height: 160px; background: linear-gradient(135deg, #2EB872, #009F9D); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;"><span style="font-size: 64px;">☀️</span>
+        </div>
+        <h4 style="margin: 0 0 8px 0; color: #333; font-size: 16px; font-weight: 600;">پنل خورشیدی 550 وات</h4>
+        <p style="margin: 0 0 12px 0; color: #666; font-size: 13px;">کیفیت A+ با گارانتی 25 ساله</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #2EB872; font-size: 20px; font-weight: 700;">14,500,000 تومان</span> <button onclick="showPurchaseMessage()" style="background: #2EB872; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">خرید</button>
+        </div>
+       </div>
+       <div class="card-hover" style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="width: 100%; height: 160px; background: linear-gradient(135deg, #009F9D, #2EB872); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;"><span style="font-size: 64px;">🔋</span>
+        </div>
+        <h4 style="margin: 0 0 8px 0; color: #333; font-size: 16px; font-weight: 600;">اینورتر 5 کیلووات</h4>
+        <p style="margin: 0 0 12px 0; color: #666; font-size: 13px;">مدل پیشرفته با راندمان بالا</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #009F9D; font-size: 20px; font-weight: 700;">35,000,000 تومان</span> <button onclick="showPurchaseMessage()" style="background: #009F9D; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">خرید</button>
+        </div>
+       </div>
+       <div class="card-hover" style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="width: 100%; height: 160px; background: linear-gradient(135deg, #2EB872, #009F9D); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;"><span style="font-size: 64px;">⚙️</span>
+        </div>
+        <h4 style="margin: 0 0 8px 0; color: #333; font-size: 16px; font-weight: 600;">پکیج نصب کامل</h4>
+        <p style="margin: 0 0 12px 0; color: #666; font-size: 13px;">شامل کابل، سازه و نصب</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #2EB872; font-size: 20px; font-weight: 700;">25,000,000 تومان</span> <button onclick="showPurchaseMessage()" style="background: #2EB872; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">خرید</button>
+        </div>
+       </div>
+      </div>
+     </div><!-- Club Tab -->
+     <div id="content-club" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
+       <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2EB872, #009F9D); border-radius: 50%; display: flex; align-items: center; justify-content: center;"><span style="font-size: 40px;">🏆</span>
+        </div>
+        <div>
+         <h3 style="margin: 0 0 8px 0; color: #333; font-size: 20px; font-weight: 700;">رتبه شما: طلایی</h3>
+         <p style="margin: 0; color: #666; font-size: 14px;">امتیاز کل: 1,250 امتیاز</p>
+        </div>
+       </div>
+       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; text-align: center;"><span style="font-size: 32px; display: block; margin-bottom: 8px;">🥇</span>
+         <p style="margin: 0 0 4px 0; color: #333; font-size: 16px; font-weight: 600;">نشان بهینه‌ساز</p>
+         <p style="margin: 0; color: #666; font-size: 12px;">کاهش 30% مصرف</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; text-align: center;"><span style="font-size: 32px; display: block; margin-bottom: 8px;">⭐</span>
+         <p style="margin: 0 0 4px 0; color: #333; font-size: 16px; font-weight: 600;">تولیدکننده برتر</p>
+         <p style="margin: 0; color: #666; font-size: 12px;">1000 کیلووات تولید</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; text-align: center;"><span style="font-size: 32px; display: block; margin-bottom: 8px;">🌱</span>
+         <p style="margin: 0 0 4px 0; color: #333; font-size: 16px; font-weight: 600;">محافظ محیط‌زیست</p>
+         <p style="margin: 0; color: #666; font-size: 12px;">500 کیلو کاهش CO₂</p>
+        </div>
+       </div>
+      </div>
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+       <h4 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: 600;">جدول رتبه‌بندی</h4>
+       <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(46, 184, 114, 0.1); border-radius: 8px;">
+         <div style="display: flex; align-items: center; gap: 12px;"><span style="font-size: 24px;">🥇</span>
+          <div>
+           <p style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">رضا احمدی</p>
+           <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">تهران</p>
+          </div>
+         </div><span style="color: #2EB872; font-size: 18px; font-weight: 700;">2,450 امتیاز</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #F5F7F9; border-radius: 8px;">
+         <div style="display: flex; align-items: center; gap: 12px;"><span style="font-size: 24px;">🥈</span>
+          <div>
+           <p style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">مریم کریمی</p>
+           <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">اصفهان</p>
+          </div>
+         </div><span style="color: #666; font-size: 18px; font-weight: 700;">1,890 امتیاز</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #F5F7F9; border-radius: 8px;">
+         <div style="display: flex; align-items: center; gap: 12px;"><span style="font-size: 24px;">🥉</span>
+          <div>
+           <p style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">علی محمدی (شما)</p>
+           <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">تهران</p>
+          </div>
+         </div><span style="color: #666; font-size: 18px; font-weight: 700;">1,250 امتیاز</span>
+        </div>
+       </div>
+      </div>
+     </div><!-- Map Tab -->
+     <div id="content-map" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+       <h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: 600;">آمار تولید انرژی خورشیدی به تفکیک استان</h3>
+       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #2EB872;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 یزد</p>
+         <p style="margin: 0; color: #2EB872; font-size: 20px; font-weight: 700;">850 مگاوات</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #009F9D;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 تهران</p>
+         <p style="margin: 0; color: #009F9D; font-size: 20px; font-weight: 700;">720 مگاوات</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #2EB872;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 اصفهان</p>
+         <p style="margin: 0; color: #2EB872; font-size: 20px; font-weight: 700;">680 مگاوات</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #009F9D;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 خراسان</p>
+         <p style="margin: 0; color: #009F9D; font-size: 20px; font-weight: 700;">590 مگاوات</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #2EB872;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 فارس</p>
+         <p style="margin: 0; color: #2EB872; font-size: 20px; font-weight: 700;">540 مگاوات</p>
+        </div>
+        <div style="background: #F5F7F9; border-radius: 12px; padding: 16px; border-right: 4px solid #009F9D;">
+         <p style="margin: 0 0 8px 0; color: #333; font-size: 15px; font-weight: 600;">🌟 کرمان</p>
+         <p style="margin: 0; color: #009F9D; font-size: 20px; font-weight: 700;">480 مگاوات</p>
+        </div>
+       </div>
+       <div style="margin-top: 24px; padding: 20px; background: rgba(46, 184, 114, 0.1); border-radius: 12px;">
+        <p style="margin: 0; color: #333; font-size: 15px;"><strong>جمع تولید کشور:</strong> <span style="color: #2EB872; font-size: 20px; font-weight: 700;">3,860 مگاوات</span></p>
+       </div>
+      </div>
+     </div><!-- Community Tab -->
+     <div id="content-community" class="tab-content" style="display: none;">
+      <div style="display: grid; gap: 20px;">
+       <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+         <h3 style="margin: 0; color: #333; font-size: 18px; font-weight: 600;">انجمن یاران خورشید</h3><button onclick="showJoinMessage()" style="background: #2EB872; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">عضویت</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+         <div style="padding: 16px; background: #F5F7F9; border-radius: 12px;">
+          <div style="display: flex; align-items: start; gap: 12px;">
+           <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #2EB872, #009F9D); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="color: white; font-size: 20px; font-weight: 700;">ر</span>
+           </div>
+           <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+             <h4 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">رضا احمدی</h4><span style="color: #999; font-size: 12px;">2 ساعت پیش</span>
+            </div>
+            <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">سیستم 5 کیلوواتی رو نصب کردم. راندمان عالیه! در ماه اول 450 کیلووات تولید داشتم. 🌞</p>
+            <div style="display: flex; gap: 16px; margin-top: 12px;"><button onclick="likePost(this)" style="background: none; border: none; color: #999; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;"> <span>👍</span> <span>24</span> </button> <button style="background: none; border: none; color: #999; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;"> <span>💬</span> <span>8</span> </button>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div style="padding: 16px; background: #F5F7F9; border-radius: 12px;">
+          <div style="display: flex; align-items: start; gap: 12px;">
+           <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #009F9D, #2EB872); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="color: white; font-size: 20px; font-weight: 700;">م</span>
+           </div>
+           <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+             <h4 style="margin: 0; color: #333; font-size: 15px; font-weight: 600;">مریم کریمی</h4><span style="color: #999; font-size: 12px;">5 ساعت پیش</span>
+            </div>
+            <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">کسی تجربه ا��تفاده از باتری داره؟ می‌خو��م برای شب‌ها ذخیره‌سازی داشته باشم.</p>
+            <div style="display: flex; gap: 16px; margin-top: 12px;"><button onclick="likePost(this)" style="background: none; border: none; color: #999; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;"> <span>👍</span> <span>15</span> </button> <button style="background: none; border: none; color: #999; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;"> <span>💬</span> <span>12</span> </button>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Profile Tab -->
+     <div id="content-profile" class="tab-content" style="display: none;">
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+       <div style="text-align: center; margin-bottom: 30px;">
+        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #2EB872, #009F9D); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;"><span style="color: white; font-size: 48px; font-weight: 700;">ع</span>
+        </div>
+        <h3 id="profile-name" style="margin: 0 0 8px 0; color: #333; font-size: 24px; font-weight: 700;">عل�� محمدی</h3>
+        <p style="margin: 0; color: #666; font-size: 14px;">عضو از اسفند 1402</p>
+       </div>
+       <div style="display: grid; gap: 16px;">
+        <div style="padding: 16px; background: #F5F7F9; border-radius: 12px;"><label for="profile-phone" style="display: block; margin-bottom: 8px; color: #666; font-size: 14px; font-weight: 500;">شماره تماس</label> <input type="tel" id="profile-phone" value="09123456789" style="width: 100%; padding: 12px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        <div style="padding: 16px; background: #F5F7F9; border-radius: 12px;"><label for="profile-address" style="display: block; margin-bottom: 8px; color: #666; font-size: 14px; font-weight: 500;">آدرس</label> <input type="text" id="profile-address" value="تهران، خیابان ولیعصر" style="width: 100%; padding: 12px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        <div style="padding: 16px; background: #F5F7F9; border-radius: 12px;"><label for="profile-system" style="display: block; margin-bottom: 8px; color: #666; font-size: 14px; font-weight: 500;">ظرفیت سیستم</label> <input type="text" id="profile-system" value="5.5 کیلووات" style="width: 100%; padding: 12px; border: 2px solid #E8ECEE; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div><button onclick="saveProfile()" style="width: 100%; background: #2EB872; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; margin-top: 8px;">ذخیره تغییرات</button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main><!-- Notification Toast -->
+   <div id="notification-toast" style="position: fixed; bottom: 20px; left: 20px; background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 1000; max-width: 300px;">
+    <p id="notification-text" style="margin: 0; color: #333; font-size: 14px;"></p>
+   </div>
+  </div>
+  <script>
+        const defaultConfig = {
+            app_title: "خانه‌روشن",
+            user_name: "علی محمدی",
+            dashboard_title: "داشبورد انرژی",
+            analysis_title: "تحلیل مصرف",
+            calculator_title: "محاسبه‌گر خورشیدی",
+            marketplace_title: "بازارچه انرژی پاک"
+        };
+
+        async function onConfigChange(config) {
+            document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+            document.getElementById('user-name').textContent = config.user_name || defaultConfig.user_name;
+            document.getElementById('dashboard-title').textContent = config.dashboard_title || defaultConfig.dashboard_title;
+            document.getElementById('analysis-title').textContent = config.analysis_title || defaultConfig.analysis_title;
+            document.getElementById('calculator-title').textContent = config.calculator_title || defaultConfig.calculator_title;
+            document.getElementById('marketplace-title').textContent = config.marketplace_title || defaultConfig.marketplace_title;
+            document.getElementById('profile-name').textContent = config.user_name || defaultConfig.user_name;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["app_title", config.app_title || defaultConfig.app_title],
+                ["user_name", config.user_name || defaultConfig.user_name],
+                ["dashboard_title", config.dashboard_title || defaultConfig.dashboard_title],
+                ["analysis_title", config.analysis_title || defaultConfig.analysis_title],
+                ["calculator_title", config.calculator_title || defaultConfig.calculator_title],
+                ["marketplace_title", config.marketplace_title || defaultConfig.marketplace_title]
+            ]);
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                onConfigChange,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.style.color = '#666';
+                btn.style.borderBottom = '3px solid transparent';
+            });
+            
+            // Show selected content
+            const selectedContent = document.getElementById('content-' + tabName);
+            if (selectedContent) {
+                selectedContent.style.display = 'block';
+                selectedContent.classList.add('fade-in');
+            }
+            
+            // Add active class to selected tab
+            const selectedTab = document.getElementById('tab-' + tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('tab-active');
+                selectedTab.style.color = '#2EB872';
+                selectedTab.style.borderBottom = '3px solid #2EB872';
+            }
+        }
+
+        function calculateSolar() {
+            const consumption = parseFloat(document.getElementById('monthly-consumption').value) || 450;
+            const roofArea = parseFloat(document.getElementById('roof-area').value) || 50;
+            const sunHours = parseFloat(document.getElementById('city-select').value) || 5.5;
+            
+            // Calculate capacity needed (kW)
+            const dailyConsumption = consumption / 30;
+            const capacity = (dailyConsumption / sunHours).toFixed(1);
+            
+            // Calculate number of panels (assuming 500W panels)
+            const panels = Math.ceil((capacity * 1000) / 500);
+            
+            // Calculate cost (30 million per kW)
+            const cost = Math.round(capacity * 30);
+            
+            // Calculate payback period
+            const monthlySavings = consumption * 2500; // 2500 toman per kWh
+            const totalCost = cost * 1000000;
+            const payback = (totalCost / (monthlySavings * 12)).toFixed(1);
+            
+            document.getElementById('result-capacity').textContent = capacity + ' کیلووات';
+            document.getElementById('result-panels').textContent = panels + ' عدد';
+            document.getElementById('result-cost').textContent = cost + ' میلیون';
+            document.getElementById('result-payback').textContent = payback + ' سال';
+        }
+
+        function showNotifications() {
+            showToast('شما 3 اعلان جدید دارید 🔔');
+        }
+
+        function showPurchaseMessage() {
+            showToast('محصول به سبد خرید اضافه شد ✅');
+        }
+
+        function showJoinMessage() {
+            showToast('درخواست عضویت ش��ا ثبت شد 👥');
+        }
+
+        function saveProfile() {
+            showToast('تغییرات با موفقیت ذخیره شد ✅');
+        }
+
+        function likePost(button) {
+            const likeCount = button.querySelector('span:last-child');
+            const currentCount = parseInt(likeCount.textContent);
+            likeCount.textContent = currentCount + 1;
+            button.style.color = '#2EB872';
+            showToast('پست را پسندیدید 👍');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('notification-toast');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize calculator on load
+        calculateSolar();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a84573cd5909755',t:'MTc2NDc3ODI5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
